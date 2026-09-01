@@ -1,0 +1,88 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- Helper Functions ---
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function userDocExists() {
+      return isAuthenticated() && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isAdmin() {
+      return userDocExists() && getUserData().role == 'admin';
+    }
+
+    function isDelivery() {
+      return userDocExists() && getUserData().role == 'delivery';
+    }
+
+    // --- User Profiles Collection ---
+    // - Customers can view their own profile; Admins can view all profiles
+    // - New users can only register with role 'customer' (privilege escalation prevention)
+    // - Existing users cannot alter their role unless modified by an Admin
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+
+      allow create: if (isOwner(userId) && (
+        !('role' in request.resource.data) || request.resource.data.role == 'customer'
+      )) || isAdmin();
+
+      allow update: if isAdmin() || (
+        isOwner(userId) && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role'])
+      );
+
+      allow delete: if isAdmin();
+    }
+
+    // --- Orders Collection ---
+    // - Customers can only create orders for themselves with valid total and initial pending status
+    // - Customers can only read their own orders and rate them once delivered
+    // - Admins can read, update, and manage all orders (verify payment, assign delivery, cancel)
+    // - Delivery couriers can only read and mark status on orders assigned to them
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() && (
+        resource.data.customerId == request.auth.uid ||
+        isAdmin() ||
+        (isDelivery() && resource.data.deliveryId == request.auth.uid)
+      );
+
+      allow create: if isAuthenticated() && (
+        request.resource.data.customerId == request.auth.uid &&
+        request.resource.data.status in ['awaiting_verification', 'pending'] &&
+        request.resource.data.paymentStatus in ['pending_verification', 'unpaid', 'paid'] &&
+        request.resource.data.total is number &&
+        request.resource.data.total > 0 &&
+        request.resource.data.items is list &&
+        request.resource.data.items.size() > 0
+      );
+
+      allow update: if isAuthenticated() && (
+        isAdmin() ||
+        (
+          isDelivery() &&
+          resource.data.deliveryId == request.auth.uid &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'deliveredAt', 'updatedAt']) &&
+          request.resource.data.status in ['out_for_delivery', 'delivered']
+        ) ||
+        (
+          resource.data.customerId == request.auth.uid &&
+          resource.data.status == 'delivered' &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['rating', 'feedback', 'ratedAt', 'updatedAt'])
+        )
+      );
+
+      allow delete: if isAdmin();
+    }
+  }
+}

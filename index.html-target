@@ -1,0 +1,9 @@
+    <nav class="nav" id="nav" aria-label="Sections">
+      <a href="#best">Best sellers</a>
+      <a href="#jhol">The jhol</a>
+      <a href="#menu">Menu</a>
+      <a href="#word">Word of mouth</a>
+      <a href="#visit">Find us</a>
+      <a href="auth/login.html" style="color:var(--turmeric);">Login / Track Order</a>
+    </nav>
+    <div class="bar__end">

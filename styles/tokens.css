@@ -1,0 +1,53 @@
+:root {
+  /* Smoked Obsidian & Rich Slate Palette */
+  --iron: #0B0F14;
+  --steel-950: #0E131A;
+  --steel-900: #121820;
+  --steel-850: #17202B;
+  --steel-800: #1D2A37;
+  --steel-750: #243545;
+  --steel-700: #2C4155;
+  --steel-600: #3E5A74;
+  --steel-500: #597B99;
+  --steel-400: #7E9EB8;
+  --steel-300: #ABC3D6;
+  --steel-200: #D0E0EC;
+  --steel-100: #EAF2F8;
+  --steel-050: #F6FAFD;
+
+  /* Food Brand Colors — Vivid, Radiant & Mouth-Watering */
+  --jhol: #FF4D24;
+  --jhol-lit: #FF6E3A;
+  --jhol-deep: #8E1705;
+  --jhol-glow: 0 8px 28px -4px rgba(255, 77, 36, 0.5), 0 2px 8px rgba(255, 77, 36, 0.3);
+  --jhol-gradient: linear-gradient(135deg, #FF451A 0%, #FF7315 100%);
+
+  --turmeric: #FFB703;
+  --turmeric-lit: #FFC83B;
+  --turmeric-deep: #D48B00;
+  --turmeric-glow: 0 0 20px rgba(255, 183, 3, 0.38);
+  --turmeric-gradient: linear-gradient(135deg, #FFB703 0%, #FF8500 100%);
+
+  --dough: #FFF3DC;
+  --coriander: #10B981;
+  --coriander-lit: #34D399;
+  --coriander-bg: rgba(16, 185, 129, 0.15);
+
+  /* Typography */
+  --ff-display: "Big Shoulders Display", "Big Shoulders", "Oswald", "Arial Narrow", sans-serif;
+  --ff-body: "Karla", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --ff-mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --ff-bn: "Baloo Da 2", "Hind Siliguri", system-ui, sans-serif;
+
+  /* Layout & Geometry */
+  --wrap: 1180px;
+  --pad: clamp(20px, 5vw, 56px);
+  --sec-y: clamp(76px, 10vw, 148px);
+  --r: 8px;
+  --r-sm: 5px;
+  --r-lg: 14px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --brushed: repeating-linear-gradient(102deg,
+              rgba(255,255,255,.025) 0 1px, rgba(0,0,0,.06) 1px 2px, transparent 2px 6px);
+  --bar-h: 68px;
+}

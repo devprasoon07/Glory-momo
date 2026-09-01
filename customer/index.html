@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Customer Orders & Live Tracking · Glory Momo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@600;700;800&family=Big+Shoulders+Display:wght@700;800;900&family=DM+Mono:wght@500&family=Karla:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="customer.css" />
+</head>
+<body>
+  <header class="bar is-stuck">
+    <div class="bar__in">
+      <div class="brand">
+        <a href="../index.html" class="brand__mark" aria-label="Glory Momo home">
+          <svg class="ico" width="34" height="34" viewBox="0 0 32 32" aria-hidden="true">
+            <circle cx="16" cy="16" r="14" fill="#C4441C" />
+            <path d="M9 16c2-4 12-4 14 0-1 6-13 6-14 0z" fill="#EFE2C6" />
+            <path d="M13 13c1-2 5-2 6 0" stroke="#0E141A" stroke-width="1.5" fill="none" stroke-linecap="round" />
+          </svg>
+        </a>
+        <div class="brand__name">
+          <span class="brand__en">Glory Momo</span>
+          <span class="brand__bn" lang="bn">গ্রাহক ড্যাশবোর্ড</span>
+        </div>
+      </div>
+      <div class="bar__end">
+         <span id="user-name" style="font-weight:600; color:var(--steel-200); font-size:0.9rem;"></span>
+         <a href="../index.html#menu" class="btn btn--ghost" style="padding:6px 14px; font-size:0.85rem;">+ Order More</a>
+         <button class="btn btn--ghost" id="btn-logout" style="padding:6px 14px; font-size:0.85rem;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap" style="padding-top: 96px; padding-bottom: 60px;">
+    <!-- Active Order Live Tracker Banner -->
+    <div id="live-tracker-panel" class="tracker-card" hidden>
+      <div class="tracker-card__head">
+        <div>
+          <span class="tracker-card__badge" id="tracker-status-badge">🍳 In Steamer</span>
+          <h2 id="tracker-order-title" style="margin:6px 0 2px; font-size:1.35rem; color:var(--steel-050);">Order #ABC123</h2>
+          <p id="tracker-subtitle" style="color:var(--steel-300); font-size:0.9rem;">Our cooks in Newtown are steaming your momos fresh.</p>
+        </div>
+        <div id="tracker-eta" class="tracker-eta">
+          <span>Est. Delivery</span>
+          <strong>~20-30 min</strong>
+        </div>
+      </div>
+
+      <!-- Step Timeline -->
+      <div class="stepper" id="order-stepper">
+        <div class="step" data-step="awaiting_verification">
+          <div class="step__dot">1</div>
+          <span class="step__label">Verification</span>
+        </div>
+        <div class="step__line"></div>
+        <div class="step" data-step="accepted">
+          <div class="step__dot">2</div>
+          <span class="step__label">Steaming</span>
+        </div>
+        <div class="step__line"></div>
+        <div class="step" data-step="out_for_delivery">
+          <div class="step__dot">3</div>
+          <span class="step__label">Courier</span>
+        </div>
+        <div class="step__line"></div>
+        <div class="step" data-step="delivered">
+          <div class="step__dot">4</div>
+          <span class="step__label">Delivered</span>
+        </div>
+      </div>
+
+      <!-- Live GPS Map for Courier -->
+      <div class="map-wrapper" id="map-wrapper">
+        <div id="map-status" class="map-status-bar">
+          <span>🚴 Live Courier Location</span>
+          <span id="courier-update-time" style="color:var(--steel-400); font-size:0.8rem;">Listening for GPS...</span>
+        </div>
+        <div id="map" style="height:340px;"></div>
+      </div>
+    </div>
+
+    <!-- Order History List -->
+    <div class="head" style="margin-top: 36px; margin-bottom: 18px;">
+      <h2 class="head__title">Your Order History</h2>
+    </div>
+
+    <div id="orders-list" aria-live="polite">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Loading your orders...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Satisfaction Review Modal -->
+  <div id="satisfaction-modal" hidden class="scrim">
+    <div class="modal">
+      <h3 style="color:var(--steel-050); font-size:1.4rem; margin-bottom:8px; font-family:var(--ff-display); text-transform:uppercase;">
+        Hot Momos Delivered! 🎉
+      </h3>
+      <p style="color:var(--steel-300); font-size:0.92rem; margin-bottom:18px;">
+        Hope the Jhol broth was fiery & delicious! Please rate your meal:
+      </p>
+
+      <div class="rating-group">
+        <label>🥘 Food & Broth Flavor</label>
+        <div class="stars-row" data-type="food">
+          <button type="button" class="star-btn" data-val="1">★</button>
+          <button type="button" class="star-btn" data-val="2">★</button>
+          <button type="button" class="star-btn" data-val="3">★</button>
+          <button type="button" class="star-btn" data-val="4">★</button>
+          <button type="button" class="star-btn" data-val="5">★</button>
+        </div>
+      </div>
+
+      <div class="rating-group" style="margin-top:16px;">
+        <label>🚴 Delivery Speed & Packaging</label>
+        <div class="stars-row" data-type="delivery">
+          <button type="button" class="star-btn" data-val="1">★</button>
+          <button type="button" class="star-btn" data-val="2">★</button>
+          <button type="button" class="star-btn" data-val="3">★</button>
+          <button type="button" class="star-btn" data-val="4">★</button>
+          <button type="button" class="star-btn" data-val="5">★</button>
+        </div>
+      </div>
+
+      <button class="btn btn--hot btn--wide" id="btn-submit-review" style="margin-top:24px;">Submit Rating 🙏</button>
+      <button class="btn btn--ghost btn--wide" id="btn-skip-review" style="margin-top:8px; border:none; color:var(--steel-400);">Skip for now</button>
+    </div>
+  </div>
+
+  <script type="module" src="./customer.js"></script>
+</body>
+</html>

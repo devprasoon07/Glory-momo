@@ -1,0 +1,105 @@
+body {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  background: var(--iron);
+  background-image:
+    radial-gradient(at 10% 20%, rgba(255, 77, 36, 0.08) 0px, transparent 50%),
+    radial-gradient(at 90% 80%, rgba(255, 183, 3, 0.08) 0px, transparent 50%);
+}
+
+.auth-box {
+  background: linear-gradient(180deg, var(--steel-900), var(--steel-950));
+  padding: 34px 28px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--steel-750);
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 77, 36, 0.12);
+}
+
+h1 {
+  font-family: var(--ff-display);
+  font-size: 2.2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--steel-050);
+  margin-bottom: 20px;
+  text-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.role-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.role-btn {
+  flex: 1;
+  background: var(--steel-850);
+  border: 1px solid var(--steel-700);
+  color: var(--steel-300);
+  padding: 10px 8px;
+  border-radius: var(--r);
+  font-family: var(--ff-display);
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.role-btn:hover {
+  background: var(--steel-750);
+  color: var(--steel-050);
+  border-color: var(--turmeric);
+}
+
+.role-btn.active {
+  background: var(--jhol-gradient);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(255, 77, 36, 0.45);
+}
+
+.auth-content {
+  display: none;
+}
+
+.auth-content.active {
+  display: block;
+}
+
+form {
+  display: grid;
+  gap: 14px;
+}
+
+input {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--steel-950);
+  border: 1px solid var(--steel-700);
+  color: #fff;
+  border-radius: var(--r);
+  font-family: var(--ff-body);
+  font-size: 0.95rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--turmeric);
+  box-shadow: 0 0 12px rgba(255, 183, 3, 0.3);
+}
+
+.error {
+  color: #ff6b6b;
+  margin-top: 15px;
+  font-size: 0.88em;
+  font-weight: 600;
+  font-family: var(--ff-mono);
+}

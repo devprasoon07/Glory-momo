@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Kitchen Order Board · Glory Momo Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@600;700;800&family=Big+Shoulders+Display:wght@700;800;900&family=DM+Mono:wght@500&family=Karla:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+  <header class="bar is-stuck">
+    <div class="bar__in">
+      <div class="brand">
+        <a href="../index.html" class="brand__mark" aria-label="Glory Momo home">
+          <svg class="ico" width="34" height="34" viewBox="0 0 32 32" aria-hidden="true">
+            <circle cx="16" cy="16" r="14" fill="#C4441C" />
+            <path d="M9 16c2-4 12-4 14 0-1 6-13 6-14 0z" fill="#EFE2C6" />
+            <path d="M13 13c1-2 5-2 6 0" stroke="#0E141A" stroke-width="1.5" fill="none" stroke-linecap="round" />
+          </svg>
+        </a>
+        <div class="brand__name">
+          <span class="brand__en">Kitchen Admin</span>
+          <span class="brand__bn" lang="bn">রান্নাঘর ড্যাশবোর্ড</span>
+        </div>
+      </div>
+      <div class="bar__end">
+         <button class="btn btn--ghost" id="btn-audio-toggle" style="padding:6px 14px; font-size:0.85rem;" title="Toggle kitchen chime alert">
+           🔔 <span id="audio-toggle-text">Chime On</span>
+         </button>
+         <span id="user-name" style="font-weight:600; color:var(--steel-200); font-size:0.9rem;"></span>
+         <button class="btn btn--ghost" id="btn-logout" style="padding:6px 14px; font-size:0.85rem;">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap" style="padding-top: 96px; padding-bottom: 60px;">
+    <!-- Live Performance KPIs -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Today's Total Orders</h3>
+        <p id="stat-orders" class="stat-big">0</p>
+      </div>
+      <div class="stat-card">
+        <h3>Today's Earnings</h3>
+        <p id="stat-earnings" class="stat-big">₹0</p>
+      </div>
+      <div class="stat-card" id="card-awaiting">
+        <h3>Awaiting Verification</h3>
+        <p id="stat-awaiting" class="stat-big" style="color:var(--turmeric);">0</p>
+      </div>
+      <div class="stat-card">
+        <h3>Active in Steamer</h3>
+        <p id="stat-cooking" class="stat-big" style="color:var(--jhol-lit);">0</p>
+      </div>
+    </div>
+
+    <!-- Filter Toolbar & Search -->
+    <div class="admin-toolbar">
+      <div class="admin-chips" role="tablist" aria-label="Order status filters">
+        <button class="chip is-active" data-filter="all">All Orders (<span id="count-all">0</span>)</button>
+        <button class="chip" data-filter="awaiting_verification">⚠️ Needs Verification (<span id="count-awaiting">0</span>)</button>
+        <button class="chip" data-filter="accepted">🍳 Steaming (<span id="count-accepted">0</span>)</button>
+        <button class="chip" data-filter="out_for_delivery">🚴 On Delivery (<span id="count-delivery">0</span>)</button>
+        <button class="chip" data-filter="delivered">✅ Delivered (<span id="count-delivered">0</span>)</button>
+        <button class="chip" data-filter="cancelled">❌ Cancelled (<span id="count-cancelled">0</span>)</button>
+      </div>
+      <div class="admin-search-box">
+        <input type="search" id="order-search" placeholder="Search order #, customer, or phone..." aria-label="Search orders" />
+      </div>
+    </div>
+
+    <!-- Orders Board -->
+    <div id="admin-orders" class="orders-board" aria-live="polite">
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Connecting to live kitchen feed...</p>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="./admin.js"></script>
+</body>
+</html>

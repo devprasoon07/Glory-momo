@@ -1,0 +1,53 @@
+/* Glory Momo — Delivery Dashboard (Vibrant Obsidian & Neon Jhol Overhaul) */
+
+.track-box {
+  background: linear-gradient(180deg, var(--steel-900), var(--steel-950));
+  border: 1px solid var(--steel-750);
+  padding: 22px;
+  border-radius: var(--r);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.indicator {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--steel-600);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.indicator.live {
+  background: var(--coriander);
+  box-shadow: 0 0 12px var(--coriander), 0 0 20px rgba(16, 185, 129, 0.5);
+  animation: pulseLive 1.5s infinite;
+}
+
+@keyframes pulseLive {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.25); }
+}
+
+#loc-text {
+  flex: 1;
+  font-weight: 600;
+  color: var(--steel-200);
+}
+
+.del-order {
+  background: linear-gradient(180deg, var(--steel-900), var(--steel-950));
+  border: 1px solid var(--steel-750);
+  padding: 22px;
+  border-radius: var(--r);
+  margin-bottom: 16px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.del-order:hover {
+  border-color: var(--turmeric);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}

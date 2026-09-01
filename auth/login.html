@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Login · Glory Momo · গ্লোরি মম</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@600;700;800&family=Big+Shoulders+Display:wght@700;800;900&family=DM+Mono:wght@500&family=Karla:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css" />
+<link rel="stylesheet" href="login.css" />
+</head>
+<body>
+  <div class="auth-box">
+    <a href="../index.html" class="back-link" style="display:inline-flex; align-items:center; gap:6px; color:var(--steel-300); text-decoration:none; margin-bottom:16px; font-size:0.9rem;">
+      ← Back to Menu
+    </a>
+    <h1>Login to Glory Momo</h1>
+    <p style="color:var(--steel-400); margin-top:-10px; margin-bottom:20px; font-size:0.95rem;">গ্লোরি মম — Sign in to continue</p>
+
+    <div class="role-selector" role="tablist" aria-label="Choose user role">
+      <button class="role-btn active" data-role="customer" role="tab" aria-selected="true">Customer</button>
+      <button class="role-btn" data-role="admin" role="tab" aria-selected="false">Admin</button>
+      <button class="role-btn" data-role="delivery" role="tab" aria-selected="false">Delivery</button>
+    </div>
+
+    <!-- Customer Auth Panel -->
+    <div class="auth-content active" id="customer-auth" role="tabpanel">
+      <p style="margin-bottom:14px; color:var(--steel-200); font-size:0.92rem;">Sign in to order hot momos, apply coupons, and track live GPS deliveries.</p>
+      <button class="btn btn--hot btn--wide" id="btn-google">Sign in with Google</button>
+
+      <div style="display:flex; align-items:center; margin:16px 0; color:var(--steel-500); font-size:0.85rem;">
+        <span style="flex:1; height:1px; background:var(--steel-700);"></span>
+        <span style="padding:0 10px;">or email</span>
+        <span style="flex:1; height:1px; background:var(--steel-700);"></span>
+      </div>
+
+      <form id="customer-email-form">
+        <input type="email" id="customer-email" placeholder="Customer Email" required autocomplete="email" />
+        <input type="password" id="customer-pwd" placeholder="Password" required autocomplete="current-password" />
+        <button type="submit" class="btn btn--ghost btn--wide" id="btn-customer-email">Login with Email</button>
+      </form>
+    </div>
+
+    <!-- Staff (Admin & Delivery) Auth Panel -->
+    <div class="auth-content" id="staff-auth" role="tabpanel">
+      <form id="staff-form">
+        <input type="email" id="staff-email" placeholder="Staff Email" required autocomplete="email" />
+        <input type="password" id="staff-pwd" placeholder="Password" required autocomplete="current-password" />
+        <button type="submit" class="btn btn--hot btn--wide" id="btn-staff">Login</button>
+      </form>
+    </div>
+
+    <!-- One-Tap Demo Credentials Card -->
+    <div class="demo-card" style="margin-top:20px; padding:14px; background:rgba(233,162,27,0.08); border:1px dashed var(--turmeric); border-radius:var(--r); text-align:left;">
+      <strong style="color:var(--turmeric); font-size:0.88rem; display:block; margin-bottom:8px;">⚡ One-Tap Demo Accounts</strong>
+      <div style="display:grid; grid-template-columns:1fr; gap:6px;">
+        <button type="button" class="demo-btn" id="btn-demo-admin" style="background:var(--steel-800); border:1px solid var(--steel-600); color:var(--steel-100); padding:7px 10px; border-radius:4px; font-size:0.82rem; text-align:left; cursor:pointer;">
+          👑 <strong>Admin</strong>: admin@glorymomo.com
+        </button>
+        <button type="button" class="demo-btn" id="btn-demo-delivery" style="background:var(--steel-800); border:1px solid var(--steel-600); color:var(--steel-100); padding:7px 10px; border-radius:4px; font-size:0.82rem; text-align:left; cursor:pointer;">
+          🛵 <strong>Delivery</strong>: delivery@glorymomo.com
+        </button>
+        <button type="button" class="demo-btn" id="btn-demo-customer" style="background:var(--steel-800); border:1px solid var(--steel-600); color:var(--steel-100); padding:7px 10px; border-radius:4px; font-size:0.82rem; text-align:left; cursor:pointer;">
+          🥟 <strong>Customer</strong>: customer@glorymomo.com
+        </button>
+      </div>
+      <span style="display:block; margin-top:6px; font-size:0.75rem; color:var(--steel-400);">All demo passwords: <code>GloryDemo@2026</code></span>
+    </div>
+
+    <p id="auth-error" class="error" role="alert" hidden></p>
+  </div>
+
+  <script type="module" src="login.js"></script>
+</body>
+</html>

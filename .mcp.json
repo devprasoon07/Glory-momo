@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "shadcn": {
+      "command": "npx",
+      "args": [
+        "shadcn@latest",
+        "mcp"
+      ]
+    },
+    "remotion": {
+      "url": "http://localhost:3000/mcp"
+    }
+  }
+}
