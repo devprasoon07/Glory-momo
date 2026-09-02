@@ -1,55 +1,21 @@
 /**
  * Glory Momo — Cosmic Broth & Ember Nebula Canvas Reactor
- * Dynamic fluid physics engine rendering rising aromatic steam curls, glowing spices,
- * and mouse-gravity vortexes that react live to the Global Scoville Heat Index.
+ * Single Signature Obsidian Ember & Spiced Jhol dynamic fluid particle engine
+ * rendering rising aromatic steam curls, glowing spices, and mouse-gravity vortexes.
  */
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const HEAT_PROFILES = {
-  1: { // Saffron Mellow
-    name: 'Saffron Mellow',
-    colors: ['#FFB703', '#FFD166', '#FFE29F', '#10B981'],
-    speedMult: 0.7,
-    glowSize: 12,
-    density: 35,
-    themeColor: '#FFB703',
-    jholColor: '#FF9E00',
-    shu: '5,000 SHU'
-  },
-  2: { // Street Classic
-    name: 'Street Classic',
-    colors: ['#FF7315', '#FFB703', '#FF451A', '#FF9F1C'],
-    speedMult: 1.0,
-    glowSize: 18,
-    density: 50,
-    themeColor: '#FF7315',
-    jholColor: '#FF451A',
-    shu: '35,000 SHU'
-  },
-  3: { // Kolkata Inferno
-    name: 'Kolkata Inferno',
-    colors: ['#FF451A', '#FF1744', '#FF7315', '#FFB703'],
-    speedMult: 1.4,
-    glowSize: 24,
-    density: 70,
-    themeColor: '#FF451A',
-    jholColor: '#D00000',
-    shu: '150,000 SHU'
-  },
-  4: { // Ghost Pepper Cyberpunk
-    name: 'Ghost Pepper Cyberpunk',
-    colors: ['#FF0055', '#FF3366', '#FF6600', '#9900FF'],
-    speedMult: 1.9,
-    glowSize: 30,
-    density: 90,
-    themeColor: '#FF0055',
-    jholColor: '#800020',
-    shu: '1,000,000+ SHU 🔥'
-  }
+const SIGNATURE_PROFILE = {
+  name: 'Obsidian Ember & Spiced Jhol',
+  colors: ['#FF7315', '#FFB703', '#FF451A', '#FF9F1C', '#E9A21B'],
+  speedMult: 1.0,
+  glowSize: 18,
+  density: 50,
+  themeColor: '#FF7315',
+  jholColor: '#FF451A'
 };
 
-let currentHeatLevel = 2;
 let canvas = null;
 let ctx = null;
 let particles = [];
@@ -70,7 +36,7 @@ class Particle {
     this.color = profile.colors[Math.floor(Math.random() * profile.colors.length)];
     this.vy = -(0.4 + Math.random() * 0.9) * profile.speedMult;
     this.vx = (Math.random() - 0.5) * 0.5 * profile.speedMult;
-    this.alpha = 0.1 + Math.random() * 0.65;
+    this.alpha = 0.15 + Math.random() * 0.65;
     this.maxAlpha = this.alpha;
     this.decay = 0.0015 + Math.random() * 0.003;
     this.wobble = Math.random() * Math.PI * 2;
@@ -170,9 +136,7 @@ export function initCanvasReactor(canvasId = 'cosmic-nebula-canvas') {
     mouse.isHovering = false;
   });
 
-  const storedHeat = parseInt(localStorage.getItem('glory_scoville_heat') || '2', 10);
-  setScovilleHeat(storedHeat, false);
-
+  applySignatureTheme();
   populateParticles();
   startLoop();
 }
@@ -185,8 +149,15 @@ function resize() {
   canvas.height = height;
 }
 
+function applySignatureTheme() {
+  const root = document.documentElement;
+  root.style.setProperty('--scoville-theme', SIGNATURE_PROFILE.themeColor);
+  root.style.setProperty('--scoville-jhol', SIGNATURE_PROFILE.jholColor);
+  root.style.setProperty('--scoville-glow', `0 0 25px rgba(255, 115, 21, 0.45)`);
+}
+
 function populateParticles() {
-  const profile = HEAT_PROFILES[currentHeatLevel] || HEAT_PROFILES[2];
+  const profile = SIGNATURE_PROFILE;
   const targetCount = window.innerWidth < 768 ? Math.floor(profile.density * 0.45) : profile.density;
   particles = [];
   for (let i = 0; i < targetCount; i++) {
@@ -199,7 +170,7 @@ function startLoop() {
 
   function render() {
     if (!ctx || !canvas) return;
-    const profile = HEAT_PROFILES[currentHeatLevel] || HEAT_PROFILES[2];
+    const profile = SIGNATURE_PROFILE;
 
     ctx.clearRect(0, 0, width, height);
 
@@ -214,42 +185,6 @@ function startLoop() {
   render();
 }
 
-/**
- * Switch global heat index (1 to 4)
- * Updates CSS theme tokens, UI gauges, and particle density in real time.
- */
-export function setScovilleHeat(level, triggerToast = true) {
-  currentHeatLevel = Math.max(1, Math.min(4, level));
-  localStorage.setItem('glory_scoville_heat', String(currentHeatLevel));
-
-  const profile = HEAT_PROFILES[currentHeatLevel];
-  const root = document.documentElement;
-
-  // Real-time CSS Custom Property Injection
-  root.style.setProperty('--scoville-theme', profile.themeColor);
-  root.style.setProperty('--scoville-jhol', profile.jholColor);
-  root.style.setProperty('--scoville-glow', `0 0 25px ${profile.themeColor}`);
-
-  // Update HUD Scoville Gauge buttons
-  document.querySelectorAll('.heat-chip').forEach(chip => {
-    const lvl = parseInt(chip.dataset.heat || '2', 10);
-    chip.classList.toggle('is-active', lvl === currentHeatLevel);
-    chip.setAttribute('aria-pressed', String(lvl === currentHeatLevel));
-  });
-
-  const gaugeLabel = document.getElementById('scoville-hud-label');
-  if (gaugeLabel) {
-    gaugeLabel.textContent = `${profile.name} (${profile.shu})`;
-    gaugeLabel.style.color = profile.themeColor;
-  }
-
-  populateParticles();
-
-  window.dispatchEvent(new CustomEvent('glory_heat_changed', {
-    detail: { level: currentHeatLevel, profile }
-  }));
-}
-
-export function getScovilleHeat() {
-  return currentHeatLevel;
+export function setScovilleHeat() {
+  applySignatureTheme();
 }

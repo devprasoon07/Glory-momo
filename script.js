@@ -4,7 +4,18 @@ import { getCurrentLang, setLang, t, applyTranslations, getLocalizedItem, getLoc
 import { getStoredLocalOrders } from './shared/firestore.js';
 import { clearLocalAuthUser } from './shared/auth-guard.js';
 import { init3DCardTilt, initMagneticButtons, triggerEmberBurst } from './shared/motion.js';
-import { initAudio, toggleAudio, playSizzlePop, playChime, playFlameWhoosh, playBubbleSplash } from './shared/audio-synth.js';
+import {
+  initAudio,
+  toggleAudio,
+  playItemSound,
+  playItemRemove,
+  playDoodleSwooshSound,
+  playCrunchSound,
+  playSteamHissSound,
+  playTadkaFlameSound,
+  playJholPourSound,
+  playChime
+} from './shared/audio-synth.js';
 import { initCanvasReactor, setScovilleHeat } from './shared/canvas-fx.js';
 import { initAlchemyLab } from './shared/alchemy-lab.js';
 import { initMomoRoulette } from './shared/roulette.js';
@@ -78,6 +89,7 @@ const PHONE = '919851585245';
   } catch(e) {}
 
   const byId = id => MENU.find(m => m.id === id) || customItemsRegistry.get(id);
+  const escapeHtml = str => String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
   /* ---------------- the board ---------------- */
   const board    = $('[data-menu]');
@@ -469,6 +481,8 @@ const PHONE = '919851585245';
 
     appliedCoupon = { code: normalized, ...coupon };
     if (statusEl) { statusEl.textContent = `✅ Applied ${normalized}!`; statusEl.style.color = 'var(--coriander)'; }
+    playDoodleSwooshSound();
+    triggerEmberBurst(window.innerWidth / 2, window.innerHeight / 2, 16);
     renderSlip();
     toast(`Coupon ${normalized} applied!`);
   }
@@ -530,12 +544,16 @@ const PHONE = '919851585245';
     if (!it){
       if (n > 0) {
         items.push({ id, q:n });
-        playBubbleSplash();
+        playItemSound(id);
       }
     }
     else {
       it.q += n;
-      if (n > 0) playBubbleSplash();
+      if (n > 0) {
+        playItemSound(id);
+      } else if (n < 0) {
+        playItemRemove();
+      }
       if (it.q < 1) items = items.filter(i => i.id !== id);
     }
     renderSlip();
@@ -557,7 +575,7 @@ const PHONE = '919851585245';
     } else {
       items.push({ id: item.id, q: 1 });
     }
-    playChime(540);
+    playItemSound(item);
     renderSlip();
     openSlip();
     toast(`🍲 ${item.n} added to your order slip!`);
@@ -569,15 +587,6 @@ const PHONE = '919851585245';
       openSlip();
       applyCouponCode(code);
     }
-  });
-
-  // Scoville Heat HUD buttons
-  $$('.heat-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      const heatLvl = parseInt(chip.dataset.heat || '2', 10);
-      setScovilleHeat(heatLvl);
-      playFlameWhoosh(heatLvl * 0.7);
-    });
   });
 
   // ASMR Audio Toggle Button
@@ -684,6 +693,7 @@ const PHONE = '919851585245';
     const clearTrigger = e.target.closest('[data-cart-clear]');
     if (clearTrigger) {
       if (!items.length) return;
+      playItemRemove();
       items = [];
       renderSlip();
       toast(t('slip_cleared', getCurrentLang()));
@@ -1239,12 +1249,108 @@ const PHONE = '919851585245';
     renderProfileOrderHistory();
   });
 
+  /* ---------------- Community Review Modal ---------------- */
+  const commModal = $('#community-review-modal');
+  const btnOpenCommReview = $('#btn-open-review-modal');
+  const btnCloseCommReview = $('#btn-close-community-review');
+  const btnSubmitCommReview = $('#btn-submit-community-review');
+  let selectedCommStars = 5;
+
+  if (btnOpenCommReview && commModal) {
+    btnOpenCommReview.addEventListener('click', () => {
+      commModal.hidden = false;
+      requestAnimationFrame(() => commModal.classList.add('is-on'));
+    });
+  }
+
+  if (btnCloseCommReview && commModal) {
+    btnCloseCommReview.addEventListener('click', () => {
+      commModal.classList.remove('is-on');
+      setTimeout(() => { commModal.hidden = true; }, 280);
+    });
+  }
+
+  $$('.comm-star').forEach(star => {
+    star.addEventListener('click', () => {
+      selectedCommStars = Number(star.dataset.star) || 5;
+      $$('.comm-star').forEach(s => {
+        const val = Number(s.dataset.star);
+        s.style.opacity = val <= selectedCommStars ? '1' : '0.25';
+      });
+    });
+  });
+
+  if (btnSubmitCommReview) {
+    btnSubmitCommReview.addEventListener('click', () => {
+      const nameInput = $('#comm-review-name');
+      const textInput = $('#comm-review-text');
+      const authorName = (nameInput && nameInput.value.trim()) || 'Happy Foodie';
+      const reviewBody = (textInput && textInput.value.trim()) || 'Amazing authentic Himalayan momos and spiced jhol!';
+
+      const newReview = {
+        name: authorName,
+        text: reviewBody,
+        stars: selectedCommStars,
+        date: new Date().toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })
+      };
+
+      try {
+        const raw = localStorage.getItem('glory_community_reviews') || '[]';
+        const list = JSON.parse(raw);
+        list.unshift(newReview);
+        localStorage.setItem('glory_community_reviews', JSON.stringify(list));
+      } catch(e) {}
+
+      // Prepend to quotes list on the page
+      const quotesList = $('.quotes');
+      if (quotesList) {
+        const newLi = document.createElement('li');
+        newLi.className = 'quote quote--hot is-in';
+        newLi.innerHTML = `
+          <p class="quote__body">“${escapeHtml(reviewBody)}”</p>
+          <p class="quote__by"><span class="quote__name">${escapeHtml(authorName)}</span><span class="quote__tag">⭐ ${selectedCommStars}/5 · Just now</span></p>
+        `;
+        quotesList.prepend(newLi);
+      }
+
+      if (commModal) {
+        commModal.classList.remove('is-on');
+        setTimeout(() => { commModal.hidden = true; }, 280);
+      }
+
+      if (nameInput) nameInput.value = '';
+      if (textInput) textInput.value = '';
+
+      toast("🎉 Thank you! Your review is posted.");
+    });
+  }
+
+  function renderStoredCommunityReviews() {
+    try {
+      const raw = localStorage.getItem('glory_community_reviews');
+      if (!raw) return;
+      const list = JSON.parse(raw);
+      const quotesList = $('.quotes');
+      if (!quotesList || !Array.isArray(list)) return;
+      list.forEach(rev => {
+        const li = document.createElement('li');
+        li.className = 'quote quote--hot is-in';
+        li.innerHTML = `
+          <p class="quote__body">“${escapeHtml(rev.text || rev.comment || '')}”</p>
+          <p class="quote__by"><span class="quote__name">${escapeHtml(rev.name || 'Glory Foodie')}</span><span class="quote__tag">⭐ ${rev.stars || rev.rating || 5}/5 · Community Review</span></p>
+        `;
+        quotesList.prepend(li);
+      });
+    } catch(e) {}
+  }
+
   /* ---------------- start execution ---------------- */
   applyTranslations(getCurrentLang());
   syncLanguageUI();
   syncProfileUserData();
   updateLiveOrderPill();
   setInterval(updateLiveOrderPill, 4000);
+  renderStoredCommunityReviews();
 
   renderTabs();
   renderBoard();

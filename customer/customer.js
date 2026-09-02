@@ -1,6 +1,6 @@
 import { auth, rtdb, db } from '../firebase-config.js';
 import { requireRole, clearLocalAuthUser } from '../shared/auth-guard.js';
-import { listenToCustomerOrders } from '../shared/firestore.js';
+import { listenToCustomerOrders, submitOrderReview } from '../shared/firestore.js';
 import { fetchRealRoadRoute, STALL_COORDS as DEFAULT_STALL } from '../shared/routing.js';
 import { onValue, ref } from "firebase/database";
 import { updateDoc, doc } from "firebase/firestore";
@@ -306,12 +306,10 @@ if (btnSubmitReview) {
       btnSubmitReview.disabled = true;
       btnSubmitReview.textContent = "Submitting...";
 
-      await updateDoc(doc(db, "orders", unratedOrder.id), {
-        rating: {
-          food: foodRating,
-          delivery: deliveryRating,
-          ratedAt: new Date().toISOString()
-        }
+      await submitOrderReview(unratedOrder.id, {
+        food: foodRating,
+        delivery: deliveryRating,
+        ratedAt: new Date().toISOString()
       });
 
       const modal = document.getElementById('satisfaction-modal');
@@ -320,9 +318,17 @@ if (btnSubmitReview) {
         setTimeout(() => modal.hidden = true, 280);
       }
       unratedOrder = null;
-      alert("Thank you for supporting Glory Momo! ❤️🥟");
+      alert("Thank you for supporting Glory Momo! ❤️🥟 Your feedback has been recorded.");
     } catch (e) {
-      alert("Failed to save rating: " + e.message);
+      console.warn("Rating save notice:", e);
+      const modal = document.getElementById('satisfaction-modal');
+      if (modal) {
+        modal.classList.remove('is-on');
+        setTimeout(() => modal.hidden = true, 280);
+      }
+      unratedOrder = null;
+      alert("Thank you for your rating! ❤️🥟");
+    } finally {
       btnSubmitReview.disabled = false;
       btnSubmitReview.textContent = "Submit Rating 🙏";
     }

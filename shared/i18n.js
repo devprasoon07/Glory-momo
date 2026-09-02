@@ -11,7 +11,7 @@ export const TRANSLATIONS = {
     nav_menu: "Menu",
     nav_reviews: "Reviews",
     nav_findus: "Find us",
-    nav_profile: "Profile & Settings",
+    nav_profile: "Profile",
     nav_order: "Order",
     opens_status: "Opens 5:30 pm",
     opens_status_long: "Opens daily 5:30 pm – 10:30 pm",
@@ -184,7 +184,7 @@ export const TRANSLATIONS = {
     status_closed_tomorrow: "Closed — opens tomorrow at %s",
 
     // Profile & Settings Drawer
-    profile_title: "My Profile & Settings",
+    profile_title: "My Profile",
     profile_logged_as: "Logged in as",
     profile_guest: "Guest Visitor",
     profile_guest_sub: "Browsing as Guest",
@@ -223,7 +223,7 @@ export const TRANSLATIONS = {
     nav_menu: "मेन्यू",
     nav_reviews: "रिव्यूज",
     nav_findus: "हमारा पता",
-    nav_profile: "प्रोफाइल और सेटिंग्स",
+    nav_profile: "प्रोफाइल",
     nav_order: "आर्डर",
     opens_status: "शाम 5:30 बजे खुलता है",
     opens_status_long: "प्रतिदिन शाम 5:30 – रात 10:30 बजे",
@@ -396,7 +396,7 @@ export const TRANSLATIONS = {
     status_closed_tomorrow: "बंद है — कल %s बजे खुलेगा",
 
     // Profile & Settings Drawer
-    profile_title: "मेरी प्रोफाइल और सेटिंग्स",
+    profile_title: "मेरी प्रोफाइल",
     profile_logged_as: "लॉग इन किया गया",
     profile_guest: "अतिथि ग्राहक",
     profile_guest_sub: "अतिथि के रूप में ब्राउज़िंग",
@@ -435,7 +435,7 @@ export const TRANSLATIONS = {
     nav_menu: "মেনু কার্ড",
     nav_reviews: "গ্রাহকদের মতামত",
     nav_findus: "আমাদের ঠিকানা",
-    nav_profile: "প্রোফাইল ও সেটিংস",
+    nav_profile: "প্রোফাইল",
     nav_order: "অর্ডার",
     opens_status: "বিকেল ৫:৩০ টায় খোলে",
     opens_status_long: "প্রতিদিন বিকেল ৫:৩০ – রাত ১০:৩০ টা",
@@ -608,7 +608,7 @@ export const TRANSLATIONS = {
     status_closed_tomorrow: "বন্ধ আছে — কাল %s টায় খুলবে",
 
     // Profile & Settings Drawer
-    profile_title: "আমার প্রোফাইল ও সেটিংস",
+    profile_title: "আমার প্রোফাইল",
     profile_logged_as: "লগইন করা আছে",
     profile_guest: "অতিথি গ্রাহক",
     profile_guest_sub: "অতিথি হিসেবে ব্রাউজিং",

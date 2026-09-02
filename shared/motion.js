@@ -133,21 +133,21 @@ export function init3DCardTilt(selector = '.tilt-card, .tray, .board__item') {
 }
 
 /**
- * Subtle Magnetic Pull for high-priority CTA buttons
+ * Subtle Magnetic Pull for designated CTA buttons (Never moves drawer/slip checkout buttons)
  */
-export function initMagneticButtons(selector = '.btn--magnetic, .btn--hot, .bar__cart-btn') {
+export function initMagneticButtons(selector = '.btn--magnetic') {
   if (reduceMotion || window.innerWidth < 768) return;
 
   const btns = document.querySelectorAll(selector);
   btns.forEach(btn => {
-    if (btn.dataset.magneticInit) return;
+    if (btn.dataset.magneticInit || btn.closest('.slip') || btn.classList.contains('btn--place-order')) return;
     btn.dataset.magneticInit = 'true';
 
     btn.addEventListener('mousemove', (e) => {
       const rect = btn.getBoundingClientRect();
       const x = e.clientX - (rect.left + rect.width / 2);
       const y = e.clientY - (rect.top + rect.height / 2);
-      btn.style.transform = `translate(${x * 0.22}px, ${y * 0.22}px)`;
+      btn.style.transform = `translate(${x * 0.15}px, ${y * 0.15}px)`;
     });
 
     btn.addEventListener('mouseleave', () => {

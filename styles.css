@@ -1532,6 +1532,8 @@ html.is-locked { overflow: hidden; }
   align-items: center;
   justify-content: center;
   gap: 8px;
+  transform: none !important;
+  transition: background 0.2s var(--ease), border-color 0.2s var(--ease), opacity 0.2s var(--ease) !important;
 }
 .slip__clear {
   justify-self: center;
@@ -1546,6 +1548,78 @@ html.is-locked { overflow: hidden; }
   transition: color 0.2s var(--ease);
 }
 .slip__clear:hover { color: var(--jhol-lit); }
+
+/* --- Order Placed Celebration Modal --- */
+.celebration-modal-content {
+  max-width: 420px;
+  background: radial-gradient(circle at 50% 0%, rgba(255, 115, 21, 0.18) 0%, var(--steel-900) 70%);
+  border: 1px solid var(--jhol);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.95), 0 0 40px rgba(255, 69, 26, 0.35);
+  padding: 32px 24px;
+}
+
+.celebration-badge {
+  display: inline-block;
+  font-family: var(--ff-mono);
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--turmeric);
+  background: rgba(255, 183, 3, 0.15);
+  border: 1px solid rgba(255, 183, 3, 0.35);
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+  letter-spacing: 0.08em;
+}
+
+.celebration-title {
+  font-family: var(--ff-display);
+  font-size: clamp(1.6rem, 4vw, 2.1rem);
+  font-weight: 900;
+  color: var(--steel-050);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  margin: 0 0 10px 0;
+}
+
+.celebration-desc {
+  font-size: 0.9rem;
+  color: var(--steel-300);
+  line-height: 1.45;
+  margin: 0 0 20px 0;
+}
+
+.celebration-order-card {
+  background: var(--steel-950);
+  border: 1px dashed var(--turmeric);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 24px;
+}
+
+.order-id-label {
+  font-family: var(--ff-mono);
+  font-size: 0.7rem;
+  color: var(--steel-400);
+  letter-spacing: 0.1em;
+  margin-bottom: 2px;
+}
+
+.celebration-order-card strong {
+  font-family: var(--ff-mono);
+  font-size: 1.3rem;
+  color: var(--turmeric);
+  display: block;
+}
+
+.order-est-time {
+  font-size: 0.8rem;
+  color: var(--coriander);
+  margin-top: 4px;
+  font-weight: 600;
+}
+
 
 /* ---------- floating cart & live order tracking pills ---------- */
 .cart-pill {

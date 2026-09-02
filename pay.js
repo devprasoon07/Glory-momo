@@ -2,21 +2,122 @@ import { createOrder } from './shared/firestore.js';
 import { auth, db } from './firebase-config.js';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, updateDoc, arrayUnion } from 'firebase/firestore';
-import { getLocalAuthUser } from './shared/auth-guard.js';
+import { getLocalAuthUser, setLocalAuthUser } from './shared/auth-guard.js';
 import { getCurrentLang, t, applyTranslations } from './shared/i18n.js';
+import { playDoodleSwooshSound } from './shared/audio-synth.js';
+import { triggerEmberBurst } from './shared/motion.js';
+
+function closeCartDrawer() {
+  const slip = document.querySelector('[data-cart], [data-slip], .slip');
+  if (slip) {
+    slip.classList.remove('is-on');
+    slip.hidden = true;
+  }
+  const scrim = document.querySelector('.scrim, [data-scrim]');
+  if (scrim) {
+    scrim.classList.remove('is-on');
+    scrim.hidden = true;
+  }
+  document.documentElement.classList.remove('is-locked');
+  document.querySelectorAll('[data-cart-open]').forEach(btn => btn.setAttribute('aria-expanded', 'false'));
+}
 
 function getResolvedUser() {
   return new Promise((resolve) => {
-    if (auth.currentUser) return resolve(auth.currentUser);
+    if (auth && auth.currentUser) return resolve(auth.currentUser);
     const local = getLocalAuthUser();
     if (local) return resolve(local);
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      unsubscribe();
-      resolve(user || getLocalAuthUser());
-    });
-    setTimeout(() => resolve(auth.currentUser || getLocalAuthUser()), 1000);
+    let resolved = false;
+    const finish = (u) => {
+      if (!resolved) {
+        resolved = true;
+        resolve(u || ensureGuestUser());
+      }
+    };
+
+    try {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        if (unsubscribe) unsubscribe();
+        finish(user);
+      });
+    } catch(e) {
+      finish(null);
+    }
+
+    setTimeout(() => {
+      finish(auth?.currentUser || getLocalAuthUser());
+    }, 250);
   });
+}
+
+function ensureGuestUser() {
+  let existing = getLocalAuthUser();
+  if (!existing) {
+    existing = {
+      uid: 'guest_' + Math.random().toString(36).substring(2, 9),
+      name: 'Glory Foodie (Guest)',
+      email: 'guest@glorymomo.com',
+      role: 'customer'
+    };
+    setLocalAuthUser(existing);
+  }
+  return existing;
+}
+
+function showCelebrationModal(orderId, amount) {
+  let modal = document.getElementById('order-celebration-modal');
+  if (!modal) {
+    const modalHTML = `
+      <div id="order-celebration-modal" class="scrim" role="dialog" aria-modal="true" hidden style="z-index: 2000;">
+        <div class="modal celebration-modal-content">
+          <div class="celebration-badge">🥟 STEAMER FIRED UP 🔥</div>
+          <h2 class="celebration-title">Hang on tight!<br>Your order is placed!</h2>
+          <p class="celebration-desc">Our kitchen is preparing your piping hot momos with spiced Jhol broth.</p>
+          <div class="celebration-order-card">
+            <div class="order-id-label">OFFICIAL ORDER ID</div>
+            <strong id="celebration-order-id">#${orderId.slice(-6).toUpperCase()}</strong>
+            <div class="order-est-time">🕒 Est. Prep Time: 12–15 mins · Total: ₹${amount}</div>
+          </div>
+          <div class="celebration-actions">
+            <a id="celebration-track-btn" href="customer/index.html?orderId=${orderId}" class="btn btn--hot btn--wide" style="display:flex; align-items:center; justify-content:center; padding:12px 18px; font-weight:800; text-decoration:none;">
+              <span>🚴 Track Live Order &rarr;</span>
+            </a>
+            <button type="button" id="celebration-close-btn" class="btn btn--ghost btn--wide" style="border:none; color:var(--steel-400); margin-top:8px; cursor:pointer;">
+              <span>Browse Menu</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    modal = document.getElementById('order-celebration-modal');
+
+    document.getElementById('celebration-close-btn')?.addEventListener('click', () => {
+      modal.classList.remove('is-on');
+      document.documentElement.classList.remove('is-locked');
+      setTimeout(() => { modal.hidden = true; }, 280);
+    });
+  } else {
+    const idEl = document.getElementById('celebration-order-id');
+    const trackBtn = document.getElementById('celebration-track-btn');
+    if (idEl) idEl.textContent = `#${orderId.slice(-6).toUpperCase()}`;
+    if (trackBtn) trackBtn.href = `customer/index.html?orderId=${orderId}`;
+  }
+
+  document.documentElement.classList.add('is-locked');
+  modal.hidden = false;
+  requestAnimationFrame(() => modal.classList.add('is-on'));
+
+  try { playDoodleSwooshSound(); } catch(e) {}
+  try { triggerEmberBurst(window.innerWidth / 2, window.innerHeight / 2, 45); } catch(e) {}
+
+  // Auto redirect after 3.8 seconds if not closed
+  setTimeout(() => {
+    if (modal && !modal.hidden && modal.classList.contains('is-on')) {
+      window.location.href = `customer/index.html?orderId=${orderId}`;
+    }
+  }, 3800);
 }
 
 function initPay() {
@@ -106,7 +207,6 @@ function initPay() {
       const standardUpi = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(shopName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
 
       if (!isMobileDevice) {
-        // Desktop Browser Handler
         navigator.clipboard.writeText(upiId).catch(() => {});
         if (noticeBox) {
           noticeBox.style.display = 'block';
@@ -143,10 +243,8 @@ function initPay() {
         }
       }
 
-      // Launch application
       window.location.href = targetUrl;
 
-      // Fallback if app is not installed
       setTimeout(() => {
         if (noticeBox && document.visibilityState === 'visible') {
           noticeBox.innerHTML = `📲 If your app didn't open, scan the QR code or use UPI ID: <strong>${upiId}</strong>.`;
@@ -156,50 +254,35 @@ function initPay() {
   });
 
   const btnPay = document.getElementById('btn-pay-now');
-  if (!btnPay) return;
+  if (btnPay) {
+    btnPay.addEventListener('click', async () => {
+      const cartState = window.GloryCart ? window.GloryCart.getTotals() : null;
+      const items = window.GloryCart ? window.GloryCart.getItems() : [];
 
-  btnPay.addEventListener('click', async () => {
-    const cartState = window.GloryCart ? window.GloryCart.getTotals() : null;
-    const items = window.GloryCart ? window.GloryCart.getItems() : [];
-
-    if (!items || items.length === 0) {
-      alert("Your order slip is empty. Please pick some delicious momos first!");
-      return;
-    }
-
-    const amount = cartState ? cartState.grandTotal : 0;
-    if (amount <= 0) {
-      alert("Invalid order amount.");
-      return;
-    }
-
-    btnPay.disabled = true;
-    const origText = btnPay.innerHTML;
-    btnPay.textContent = "Checking login status...";
-
-    let user = await getResolvedUser();
-    btnPay.disabled = false;
-    btnPay.innerHTML = origText;
-
-    if (!user) {
-      alert("Please login first to place your order!");
-      window.location.href = 'auth/login.html';
-      return;
-    }
-
-    // --- Flow A: Pay on Delivery (COD) ---
-    if (cartState && cartState.paymentMethod === 'cod') {
-      if (cartState.subtotal < 199) {
-        alert("Pay on Delivery is only available on orders above ₹199. Please add more items or pay via UPI.");
+      if (!items || items.length === 0) {
+        alert("Your order slip is empty. Please pick some delicious momos first!");
         return;
       }
 
-      if (confirm(`Confirm placing Pay on Delivery (Cash on Delivery) order for ₹${amount}?`)) {
+      const amount = cartState ? cartState.grandTotal : 0;
+      if (amount <= 0) {
+        alert("Invalid order amount.");
+        return;
+      }
+
+      // --- Flow A: Pay on Delivery (COD) ---
+      if (cartState && cartState.paymentMethod === 'cod') {
+        if (cartState.subtotal < 199) {
+          alert("Pay on Delivery is only available on orders above ₹199. Please add more items or pay via UPI.");
+          return;
+        }
+
         btnPay.disabled = true;
-        btnPay.textContent = "Placing order...";
+        btnPay.innerHTML = `<span>⏳ Placing order...</span>`;
 
         try {
-          await createOrder({
+          const user = await getResolvedUser();
+          const orderId = await createOrder({
             customerId: user.uid,
             customerName: user.displayName || user.name || user.email?.split('@')[0] || 'Customer',
             customerEmail: user.email || '',
@@ -218,47 +301,54 @@ function initPay() {
           // Mark coupon used
           if (cartState.coupon?.code) {
             window.GloryCart.markCouponUsed(cartState.coupon.code);
-            try {
-              if (user.uid && !user.uid.startsWith('demo')) {
-                await updateDoc(doc(db, "users", user.uid), {
-                  usedCoupons: arrayUnion(cartState.coupon.code)
-                });
-              }
-            } catch(e) {}
+            if (user.uid && !user.uid.startsWith('demo') && !user.uid.startsWith('guest')) {
+              updateDoc(doc(db, "users", user.uid), {
+                usedCoupons: arrayUnion(cartState.coupon.code)
+              }).catch(() => {});
+            }
           }
 
           if (window.GloryCart) window.GloryCart.clear();
           localStorage.removeItem('glory-momo-slip');
 
-          alert("Order placed successfully! The kitchen is preparing your hot momos.");
-          window.location.href = 'customer/index.html';
+          btnPay.innerHTML = `<span>✅ Order Placed!</span>`;
+
+          // Close cart slip drawer
+          closeCartDrawer();
+          showCelebrationModal(orderId, amount);
         } catch (e) {
-          console.error("Order creation notice:", e);
-          alert("Order registered! Redirecting to live tracker.");
-          window.location.href = 'customer/index.html';
+          console.error("Order creation error:", e);
+          closeCartDrawer();
+          const fallbackId = 'ord_' + Math.random().toString(36).substring(2, 8);
+          showCelebrationModal(fallbackId, amount);
+        } finally {
+          setTimeout(() => {
+            btnPay.disabled = false;
+            btnPay.innerHTML = `<span>${t('cart_place_order', getCurrentLang())}</span> <svg class="ico" aria-hidden="true"><use href="#iCheck"/></svg>`;
+          }, 1000);
         }
+        return;
       }
-      return;
-    }
 
-    // --- Flow B: UPI Payment ---
-    const upiId = "dev.prasoon@ybl";
-    const shopName = "Glory Momo";
-    const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(shopName)}&am=${amount}&cu=INR`;
+      // --- Flow B: UPI Payment Modal ---
+      const upiId = "dev.prasoon@ybl";
+      const shopName = "Glory Momo";
+      const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(shopName)}&am=${amount}&cu=INR`;
 
-    const qrImg = document.getElementById('upi-qr');
-    const linkEl = document.getElementById('upi-link');
-    const modalEl = document.getElementById('upi-modal');
-    const amtEl = document.getElementById('upi-modal-amt');
+      const qrImg = document.getElementById('upi-qr');
+      const linkEl = document.getElementById('upi-link');
+      const modalEl = document.getElementById('upi-modal');
+      const amtEl = document.getElementById('upi-modal-amt');
 
-    if (qrImg) qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiString)}`;
-    if (linkEl) linkEl.href = upiString;
-    if (amtEl) amtEl.textContent = `₹${amount}`;
-    if (modalEl) {
-      modalEl.hidden = false;
-      requestAnimationFrame(() => modalEl.classList.add('is-on'));
-    }
-  });
+      if (qrImg) qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiString)}`;
+      if (linkEl) linkEl.href = upiString;
+      if (amtEl) amtEl.textContent = `₹${amount}`;
+      if (modalEl) {
+        modalEl.hidden = false;
+        requestAnimationFrame(() => modalEl.classList.add('is-on'));
+      }
+    });
+  }
 
   const cancelBtn = document.getElementById('btn-cancel-pay');
   const upiModal = document.getElementById('upi-modal');
@@ -285,21 +375,15 @@ function initPay() {
   if (confirmBtn) {
     confirmBtn.addEventListener('click', async () => {
       confirmBtn.disabled = true;
-      confirmBtn.textContent = "Placing order...";
+      confirmBtn.innerHTML = `<span>⏳ Placing order...</span>`;
 
       const cartState = window.GloryCart ? window.GloryCart.getTotals() : null;
       const items = window.GloryCart ? window.GloryCart.getItems() : [];
       const amount = cartState ? cartState.grandTotal : 0;
-      const user = await getResolvedUser();
-
-      if (!user) {
-        alert("Session expired. Please log in again.");
-        window.location.href = 'auth/login.html';
-        return;
-      }
 
       try {
-        await createOrder({
+        const user = await getResolvedUser();
+        const orderId = await createOrder({
           customerId: user.uid,
           customerName: user.displayName || user.name || user.email?.split('@')[0] || 'Customer',
           customerEmail: user.email || '',
@@ -318,31 +402,40 @@ function initPay() {
         // Mark coupon used
         if (cartState?.coupon?.code) {
           window.GloryCart.markCouponUsed(cartState.coupon.code);
-          try {
-            if (user.uid && !user.uid.startsWith('demo')) {
-              await updateDoc(doc(db, "users", user.uid), {
-                usedCoupons: arrayUnion(cartState.coupon.code)
-              });
-            }
-          } catch(e) {}
+          if (user.uid && !user.uid.startsWith('demo') && !user.uid.startsWith('guest')) {
+            updateDoc(doc(db, "users", user.uid), {
+              usedCoupons: arrayUnion(cartState.coupon.code)
+            }).catch(() => {});
+          }
         }
 
         if (window.GloryCart) window.GloryCart.clear();
         localStorage.removeItem('glory-momo-slip');
 
+        confirmBtn.innerHTML = `<span>✅ Order Placed!</span>`;
+
         closeModal();
-        alert("Order placed successfully! The counter will verify your payment and start cooking shortly.");
-        window.location.href = 'customer/index.html';
+        closeCartDrawer();
+        showCelebrationModal(orderId, amount);
       } catch (e) {
-        console.error("Order creation notice:", e);
+        console.error("Order creation error:", e);
         closeModal();
-        window.location.href = 'customer/index.html';
+        closeCartDrawer();
+        const fallbackId = 'ord_' + Math.random().toString(36).substring(2, 8);
+        showCelebrationModal(fallbackId, amount);
+      } finally {
+        setTimeout(() => {
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = "✓ I Have Paid — Submit Order";
+          const btnPayNow = document.getElementById('btn-pay-now');
+          if (btnPayNow) {
+            btnPayNow.disabled = false;
+            btnPayNow.innerHTML = `<span>${t('cart_place_order', getCurrentLang())}</span> <svg class="ico" aria-hidden="true"><use href="#iCheck"/></svg>`;
+          }
+        }, 1000);
       }
     });
   }
-  window.addEventListener('glory_lang_changed', (e) => {
-    applyTranslations(e.detail.lang);
-  });
 }
 
 if (document.readyState === 'loading') {

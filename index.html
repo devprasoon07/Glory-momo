@@ -166,25 +166,15 @@
       <a href="#jhol" data-i18n="nav_thejhol">The jhol</a>
       <a href="#menu" data-i18n="nav_menu">Menu</a>
       <a href="#word" data-i18n="nav_reviews">Reviews</a>
-      <button type="button" id="btn-open-profile" class="nav-profile-btn" style="background:rgba(233,162,27,0.12); border:1px solid var(--turmeric); color:var(--turmeric); border-radius:999px; font-size:0.85rem; font-weight:700; cursor:pointer; padding:6px 14px; display:inline-flex; align-items:center; gap:6px; margin-left:6px;">
-        <span>👤</span> <span data-i18n="nav_profile">Profile &amp; Settings</span>
-      </button>
     </nav>
     <div class="bar__end">
-      <!-- Scoville Heat Index HUD Controller -->
-      <div class="scoville-hud" title="Adjust Scoville Heat Index">
-        <button type="button" class="heat-chip" data-heat="1" aria-label="Mild Saffron (5k SHU)">🌱</button>
-        <button type="button" class="heat-chip is-active" data-heat="2" aria-label="Street Classic (40k SHU)">🌶️</button>
-        <button type="button" class="heat-chip" data-heat="3" aria-label="Kolkata Volcano (150k SHU)">🌋</button>
-        <button type="button" class="heat-chip" data-heat="4" aria-label="Ghost Pepper (1M SHU)">☠️</button>
-      </div>
       <!-- Procedural ASMR Sound Synthesizer Equalizer -->
       <button type="button" class="asmr-toggle-btn" id="btn-asmr-toggle" aria-pressed="false" title="Street ASMR Audio (Web Audio API)">
         <span class="eq-bars"><i class="eq-bar"></i><i class="eq-bar"></i><i class="eq-bar"></i></span>
         <span>ASMR</span>
       </button>
       <p class="tube" data-status><span class="tube__dot"></span><span class="tube__txt">Opens 5:30 pm</span></p>
-      <button type="button" class="btn btn--steel btn--profile" id="btn-bar-profile" aria-label="Open Profile &amp; Settings">
+      <button type="button" class="btn btn--steel btn--profile" id="btn-bar-profile" aria-label="Open Profile">
         <span>👤</span>
         <span class="btn__label" data-i18n="nav_profile">Profile</span>
       </button>
@@ -941,6 +931,9 @@
         <a class="link" href="https://www.google.com/maps/search/?api=1&amp;query=Glory+Momo+Sukhobrishti+Newtown" target="_blank" rel="noopener">
           <span data-i18n="score_read_google">Read them on Google</span> <svg class="ico" aria-hidden="true"><use href="#iExt"/></svg>
         </a>
+        <button type="button" class="btn btn--hot" id="btn-open-review-modal" style="margin-top: 14px; width: 100%; font-size: 0.85rem; padding: 8px 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
+          <span>⭐</span> <span>Write a Review</span>
+        </button>
       </aside>
 
       <ul class="quotes">
@@ -1239,6 +1232,44 @@
   <svg class="ico" aria-hidden="true"><use href="#iArrow"/></svg>
 </button>
 <button class="totop" data-totop aria-label="Back to top"><svg class="ico" aria-hidden="true"><use href="#iUp"/></svg></button>
+<!-- Community Feedback / Review Modal -->
+<div id="community-review-modal" class="scrim" role="dialog" aria-modal="true" aria-labelledby="commRevTitle" hidden style="z-index: 1500;">
+  <div class="modal" style="max-width: 440px; padding: 24px 20px; background: var(--steel-900); border: 1px solid var(--jhol); border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.85);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 id="commRevTitle" style="color:var(--steel-050); font-family:var(--ff-display); font-size:1.3rem; margin:0; text-transform:uppercase;">Share Your Momo Review</h3>
+      <button type="button" id="btn-close-community-review" class="iconbtn" aria-label="Close review modal"><svg class="ico" aria-hidden="true"><use href="#iClose"/></svg></button>
+    </div>
+    <p style="color:var(--steel-300); font-size:0.85rem; margin-bottom:14px; line-height:1.4;">
+      Tell the community about your experience with our spiced Jhol broth and steamed momos!
+    </p>
+
+    <div style="margin-bottom:12px;">
+      <label style="display:block; font-size:0.75rem; text-transform:uppercase; color:var(--steel-400); margin-bottom:4px; font-weight:700;">Your Name</label>
+      <input type="text" id="comm-review-name" placeholder="e.g. Srijan Banerjee" style="width:100%; background:var(--steel-800); border:1px solid var(--steel-700); border-radius:6px; padding:8px 12px; color:var(--steel-050); font-size:0.9rem;" />
+    </div>
+
+    <div style="margin-bottom:12px;">
+      <label style="display:block; font-size:0.75rem; text-transform:uppercase; color:var(--steel-400); margin-bottom:4px; font-weight:700;">Rating (Stars)</label>
+      <div id="comm-star-picker" style="display:flex; gap:6px; font-size:1.4rem; cursor:pointer;">
+        <span class="comm-star is-lit" data-star="1" style="color:var(--turmeric);">★</span>
+        <span class="comm-star is-lit" data-star="2" style="color:var(--turmeric);">★</span>
+        <span class="comm-star is-lit" data-star="3" style="color:var(--turmeric);">★</span>
+        <span class="comm-star is-lit" data-star="4" style="color:var(--turmeric);">★</span>
+        <span class="comm-star is-lit" data-star="5" style="color:var(--turmeric);">★</span>
+      </div>
+    </div>
+
+    <div style="margin-bottom:16px;">
+      <label style="display:block; font-size:0.75rem; text-transform:uppercase; color:var(--steel-400); margin-bottom:4px; font-weight:700;">Your Review / Notes</label>
+      <textarea id="comm-review-text" rows="3" placeholder="How spicy was the Jhol? What's your favourite item?" style="width:100%; background:var(--steel-800); border:1px solid var(--steel-700); border-radius:6px; padding:8px 12px; color:var(--steel-050); font-size:0.88rem; resize:vertical;"></textarea>
+    </div>
+
+    <button type="button" id="btn-submit-community-review" class="btn btn--hot btn--wide" style="padding:10px 16px; font-weight:800;">
+      <span>Submit Review 🙏</span>
+    </button>
+  </div>
+</div>
+
 <div class="toast" data-toast role="status" aria-live="polite"></div>
 <script type="module" src="./script.js"></script>
 <script type="module" src="./pay.js"></script>

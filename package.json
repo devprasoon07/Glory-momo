@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "firebase": "^10.9.0",
-    "leaflet": "^1.9.4"
+    "leaflet": "^1.9.4",
+    "morphicons": "^1.7.1"
   },
   "devDependencies": {
     "shadcn": "^4.19.1",

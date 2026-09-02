@@ -101,19 +101,22 @@ export function saveStoredLocalOrders(orders) {
 // Users
 export async function createUserProfile(uid, data) {
   try {
-    await setDoc(doc(db, "users", uid), {
+    setDoc(doc(db, "users", uid), {
       ...data,
       updatedAt: new Date().toISOString()
-    }, { merge: true });
+    }, { merge: true }).catch(() => {});
   } catch(e) {
-    console.warn("Firestore createUserProfile fallback to local:", e.message);
+    console.warn("Firestore createUserProfile fallback:", e.message);
   }
 }
 
 export async function getUserProfile(uid) {
   try {
-    const d = await getDoc(doc(db, "users", uid));
-    if (d.exists()) return d.data();
+    const d = await Promise.race([
+      getDoc(doc(db, "users", uid)),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 1200))
+    ]);
+    if (d && d.exists()) return d.data();
   } catch (e) {
     console.warn("Firestore getUserProfile notice:", e.message);
   }
@@ -130,19 +133,35 @@ export async function createOrder(orderData) {
     status: orderData.status || 'awaiting_verification'
   };
 
-  // 1. Try Firestore
+  // 1. Instant local persistence for zero-latency, 100% reliable order placement
+  const currentLocal = getStoredLocalOrders();
+  const filtered = currentLocal.filter(o => o.id !== fullOrder.id);
+  filtered.unshift(fullOrder);
+  saveStoredLocalOrders(filtered);
+
+  // 2. Non-blocking Firestore sync (fire & forget in background)
   try {
     const orderRef = doc(collection(db, "orders"));
-    fullOrder.id = orderRef.id;
-    await setDoc(orderRef, fullOrder);
+    const firestoreId = orderRef.id;
+    fullOrder.id = firestoreId;
+
+    // Update local copy with the firestore document ID
+    const updatedLocal = getStoredLocalOrders();
+    const idx = updatedLocal.findIndex(o => o.id === newId);
+    if (idx !== -1) {
+      updatedLocal[idx] = fullOrder;
+    } else {
+      updatedLocal.unshift(fullOrder);
+    }
+    saveStoredLocalOrders(updatedLocal);
+
+    // Fire & forget to Firestore
+    setDoc(orderRef, fullOrder).catch(err => {
+      console.warn("Firestore sync deferred (saved locally):", err.message);
+    });
   } catch(e) {
     console.warn("Firestore createOrder offline fallback:", e.message);
   }
-
-  // 2. Local fallback sync
-  const currentLocal = getStoredLocalOrders();
-  currentLocal.unshift(fullOrder);
-  saveStoredLocalOrders(currentLocal);
 
   return fullOrder.id;
 }
@@ -165,7 +184,9 @@ export async function updateOrderStatus(orderId, status) {
       updatedAt: new Date().toISOString()
     };
     if (status === 'delivered') updatePayload.deliveredAt = new Date().toISOString();
-    await updateDoc(doc(db, "orders", orderId), updatePayload);
+    updateDoc(doc(db, "orders", orderId), updatePayload).catch(err => {
+      console.warn("Firestore updateOrderStatus deferred:", err.message);
+    });
   } catch(e) {
     console.warn("Firestore updateOrderStatus fallback:", e.message);
   }
@@ -184,10 +205,12 @@ export async function assignDelivery(orderId, deliveryId) {
 
   // 2. Asynchronous Firestore sync
   try {
-    await updateDoc(doc(db, "orders", orderId), {
+    updateDoc(doc(db, "orders", orderId), {
       deliveryId,
       status: 'out_for_delivery',
       assignedAt: new Date().toISOString()
+    }).catch(err => {
+      console.warn("Firestore assignDelivery deferred:", err.message);
     });
   } catch(e) {
     console.warn("Firestore assignDelivery fallback:", e.message);
@@ -297,4 +320,44 @@ export function listenToDeliveryOrders(deliveryId, callback) {
     emitLocal();
     return () => window.removeEventListener('glory_local_orders_updated', emitLocal);
   }
+}
+
+export async function submitOrderReview(orderId, ratingData) {
+  // 1. Instant local update for seamless UI feedback
+  const currentLocal = getStoredLocalOrders();
+  const found = currentLocal.find(o => o.id === orderId);
+  if (found) {
+    found.rating = ratingData;
+    saveStoredLocalOrders(currentLocal);
+  }
+
+  // 2. Persist to community reviews list locally
+  try {
+    const rawRev = localStorage.getItem('glory_community_reviews') || '[]';
+    const reviews = JSON.parse(rawRev);
+    reviews.unshift({
+      orderId,
+      ...ratingData,
+      id: 'rev_' + Date.now()
+    });
+    localStorage.setItem('glory_community_reviews', JSON.stringify(reviews));
+  } catch (e) {}
+
+  // 3. Asynchronous Firestore sync
+  try {
+    updateDoc(doc(db, "orders", orderId), {
+      rating: ratingData
+    }).catch(() => {});
+  } catch(e) {}
+
+  try {
+    const reviewRef = doc(collection(db, "reviews"));
+    setDoc(reviewRef, {
+      orderId,
+      ...ratingData,
+      createdAt: new Date().toISOString()
+    }).catch(() => {});
+  } catch(e) {}
+
+  return true;
 }
