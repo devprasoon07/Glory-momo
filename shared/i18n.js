@@ -5,6 +5,8 @@ export const TRANSLATIONS = {
   en: {
     // Navigation & Header
     nav_bestsellers: "Best sellers",
+    nav_alchemy: "Alchemy Lab",
+    nav_roulette: "Daily Drop",
     nav_thejhol: "The jhol",
     nav_menu: "Menu",
     nav_reviews: "Reviews",
@@ -14,6 +16,16 @@ export const TRANSLATIONS = {
     opens_status: "Opens 5:30 pm",
     opens_status_long: "Opens daily 5:30 pm – 10:30 pm",
     scroll_cue: "Scroll",
+
+    // Alchemy Lab Section
+    alchemy_eyebrow: "Interactive Street-Food Crafter",
+    alchemy_title: "The Jhol Alchemy Lab",
+    alchemy_note: "Choose your handcrafted dumpling base, select steaming broths, dial the Scoville heat, and layer crunchy toppings. Real-time liquid physics & instant cart integration.",
+
+    // Roulette Section
+    roulette_eyebrow: "Daily Mystery Drop",
+    roulette_title: "Dalle Chili Momo Roulette",
+    roulette_note: "Spin the wheel once a day to unlock secret kitchen discounts, complimentary crunchy garnishes, and super feast coupons.",
 
     // Hero Section
     hero_eyebrow: "Flavours Battle of Buds · Sukhobrishti · Action Area III",
@@ -205,6 +217,8 @@ export const TRANSLATIONS = {
   hi: {
     // Navigation & Header
     nav_bestsellers: "बेस्ट सेलर्स",
+    nav_alchemy: "एल्केमी लैब",
+    nav_roulette: "लकी ड्रा",
     nav_thejhol: "खास झोल",
     nav_menu: "मेन्यू",
     nav_reviews: "रिव्यूज",
@@ -214,6 +228,16 @@ export const TRANSLATIONS = {
     opens_status: "शाम 5:30 बजे खुलता है",
     opens_status_long: "प्रतिदिन शाम 5:30 – रात 10:30 बजे",
     scroll_cue: "नीचे देखें",
+
+    // Alchemy Lab Section
+    alchemy_eyebrow: "इंटरैक्टिव मोमो क्राफ्टर",
+    alchemy_title: "झोल एल्केमी लैब",
+    alchemy_note: "अपनी पसंद का मोमो बेस, गरमा-गरम झोल सूप, तीखापन और क्रिस्पी गार्निश चुनें।",
+
+    // Roulette Section
+    roulette_eyebrow: "दैनिक लकी व्हील",
+    roulette_title: "डल्ले मिर्च मोमो रूले",
+    roulette_note: "रोज़ाना व्हील घुमाएं और पाएं शानदार डिस्काउंट और फ्री टॉपिंग्स।",
 
     // Hero Section
     hero_eyebrow: "फ्लेवर्स बैटल ऑफ बड्स · सुखोवृष्टि · एक्शन एरिया III",
@@ -405,6 +429,8 @@ export const TRANSLATIONS = {
   bn: {
     // Navigation & Header
     nav_bestsellers: "সেরা পদ",
+    nav_alchemy: "অ্যালকেমি ল্যাব",
+    nav_roulette: "লাকি ড্র",
     nav_thejhol: "স্পেশাল ঝোল",
     nav_menu: "মেনু কার্ড",
     nav_reviews: "গ্রাহকদের মতামত",
@@ -414,6 +440,16 @@ export const TRANSLATIONS = {
     opens_status: "বিকেল ৫:৩০ টায় খোলে",
     opens_status_long: "প্রতিদিন বিকেল ৫:৩০ – রাত ১০:৩০ টা",
     scroll_cue: "স্ক্রোল করুন",
+
+    // Alchemy Lab Section
+    alchemy_eyebrow: "ইন্টারেক্টিভ মোমো ক্রাফটার",
+    alchemy_title: "ঝোল অ্যালকেমি ল্যাব",
+    alchemy_note: "আপনার পছন্দের মোমো, গরম ঝোল, ঝালের মাত্রা এবং ক্রিস্পি গার্নিশ বেছে নিন।",
+
+    // Roulette Section
+    roulette_eyebrow: "দৈনিক লাকি ড্র",
+    roulette_title: "ডল্লে লঙ্কা মোমো রুলে",
+    roulette_note: "প্রতিদিন চাকা ঘুরিয়ে জিতে নিন দারুণ ডিসকাউন্ট ও ফ্রি টপিংস।",
 
     // Hero Section
     hero_eyebrow: "ফ্লেভারস ব্যাটল অফ বাডস · সুখবৃষ্টি · অ্যাকশন এরিয়া III",

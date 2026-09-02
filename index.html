@@ -161,6 +161,8 @@
     </a>
     <nav class="nav" id="nav" aria-label="Sections">
       <a href="#best" data-i18n="nav_bestsellers">Best sellers</a>
+      <a href="#alchemy" data-i18n="nav_alchemy">Alchemy Lab</a>
+      <a href="#roulette" data-i18n="nav_roulette">Daily Drop</a>
       <a href="#jhol" data-i18n="nav_thejhol">The jhol</a>
       <a href="#menu" data-i18n="nav_menu">Menu</a>
       <a href="#word" data-i18n="nav_reviews">Reviews</a>
@@ -169,6 +171,18 @@
       </button>
     </nav>
     <div class="bar__end">
+      <!-- Scoville Heat Index HUD Controller -->
+      <div class="scoville-hud" title="Adjust Scoville Heat Index">
+        <button type="button" class="heat-chip" data-heat="1" aria-label="Mild Saffron (5k SHU)">🌱</button>
+        <button type="button" class="heat-chip is-active" data-heat="2" aria-label="Street Classic (40k SHU)">🌶️</button>
+        <button type="button" class="heat-chip" data-heat="3" aria-label="Kolkata Volcano (150k SHU)">🌋</button>
+        <button type="button" class="heat-chip" data-heat="4" aria-label="Ghost Pepper (1M SHU)">☠️</button>
+      </div>
+      <!-- Procedural ASMR Sound Synthesizer Equalizer -->
+      <button type="button" class="asmr-toggle-btn" id="btn-asmr-toggle" aria-pressed="false" title="Street ASMR Audio (Web Audio API)">
+        <span class="eq-bars"><i class="eq-bar"></i><i class="eq-bar"></i><i class="eq-bar"></i></span>
+        <span>ASMR</span>
+      </button>
       <p class="tube" data-status><span class="tube__dot"></span><span class="tube__txt">Opens 5:30 pm</span></p>
       <button type="button" class="btn btn--steel btn--profile" id="btn-bar-profile" aria-label="Open Profile &amp; Settings">
         <span>👤</span>
@@ -329,6 +343,32 @@
     </div>
   </div>
 </section>
+
+<!-- ============================================================
+     The Jhol Alchemy Lab — Interactive Custom Momo Crafter
+     ============================================================ -->
+<section class="sec-alchemy" id="alchemy">
+  <div class="wrap">
+    <header class="head head--mid" data-rise style="margin-bottom: 32px;">
+      <p class="eyebrow" data-i18n="alchemy_eyebrow">Interactive Street-Food Crafter</p>
+      <h2 class="head__title" data-i18n="alchemy_title">The Jhol Alchemy Lab</h2>
+      <p class="head__note" data-i18n="alchemy_note">
+        Choose your handcrafted dumpling base, select steaming broths, dial the Scoville heat, and layer crunchy toppings. Real-time liquid physics &amp; instant cart integration.
+      </p>
+    </header>
+    <div id="alchemy-lab-mount" data-rise></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     Dalle Chili Momo Roulette — Daily Mystery Drop
+     ============================================================ -->
+<section class="sec-roulette" id="roulette">
+  <div class="wrap" data-rise>
+    <div id="momo-roulette-mount"></div>
+  </div>
+</section>
+
 <section class="jhol" id="jhol">
   <div class="wrap">
     <header class="head head--mid" data-rise>

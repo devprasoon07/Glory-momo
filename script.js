@@ -4,6 +4,10 @@ import { getCurrentLang, setLang, t, applyTranslations, getLocalizedItem, getLoc
 import { getStoredLocalOrders } from './shared/firestore.js';
 import { clearLocalAuthUser } from './shared/auth-guard.js';
 import { init3DCardTilt, initMagneticButtons, triggerEmberBurst } from './shared/motion.js';
+import { initAudio, toggleAudio, playSizzlePop, playChime, playFlameWhoosh, playBubbleSplash } from './shared/audio-synth.js';
+import { initCanvasReactor, setScovilleHeat } from './shared/canvas-fx.js';
+import { initAlchemyLab } from './shared/alchemy-lab.js';
+import { initMomoRoulette } from './shared/roulette.js';
 
 const html = document.documentElement;
 html.classList.add('js');
@@ -67,7 +71,13 @@ const PHONE = '919851585245';
     { id:'water',         g:'drink', n:'Bottled Water',        bn:'জল', p:20,  pc:'1 L', h:0, v:1, d:'Sealed bottle.' }
   ];
 
-  const byId = id => MENU.find(m => m.id === id);
+  const customItemsRegistry = new Map();
+  try {
+    const savedCustom = JSON.parse(localStorage.getItem('glory_custom_items') || '[]');
+    savedCustom.forEach(it => customItemsRegistry.set(it.id, it));
+  } catch(e) {}
+
+  const byId = id => MENU.find(m => m.id === id) || customItemsRegistry.get(id);
 
   /* ---------------- the board ---------------- */
   const board    = $('[data-menu]');
@@ -244,7 +254,12 @@ const PHONE = '919851585245';
     'GLORY20': { min: 199, pct: 0.20, maxDiscount: 60, desc: '20% OFF on ₹199+' },
     'GLORY30': { min: 299, pct: 0.30, maxDiscount: 100, desc: '30% OFF on ₹299+' },
     'FIRSTMOMO': { min: 149, flat: 50, desc: '₹50 FLAT OFF on ₹149+' },
-    'FEAST40': { min: 499, pct: 0.40, maxDiscount: 200, desc: '40% OFF on ₹499+' }
+    'FEAST40': { min: 499, pct: 0.40, maxDiscount: 200, desc: '40% OFF on ₹499+' },
+    'JHOL25': { min: 199, pct: 0.25, maxDiscount: 80, desc: '25% OFF on ₹199+' },
+    'FREE_CRUNCH': { min: 140, flat: 30, desc: '₹30 FLAT OFF on toppings' },
+    'MOMO50': { min: 299, flat: 50, desc: '₹50 FLAT OFF on ₹299+' },
+    'SUPER_FEAST': { min: 399, pct: 0.35, maxDiscount: 150, desc: '35% OFF on ₹399+' },
+    'CHILI_DROP': { min: 120, flat: 20, desc: '₹20 FLAT OFF on ₹120+' }
   };
 
   function getDeliveryFee(dist) {
@@ -512,9 +527,66 @@ const PHONE = '919851585245';
 
   function bump(id, n){
     const it = items.find(i => i.id === id);
-    if (!it){ if (n > 0) items.push({ id, q:n }); }
-    else { it.q += n; if (it.q < 1) items = items.filter(i => i.id !== id); }
+    if (!it){
+      if (n > 0) {
+        items.push({ id, q:n });
+        playBubbleSplash();
+      }
+    }
+    else {
+      it.q += n;
+      if (n > 0) playBubbleSplash();
+      if (it.q < 1) items = items.filter(i => i.id !== id);
+    }
     renderSlip();
+  }
+
+  // Next-Gen Interactive Event Handlers
+  window.addEventListener('glory_add_custom_item', (e) => {
+    const item = e.detail?.item;
+    if (!item) return;
+    customItemsRegistry.set(item.id, item);
+    try {
+      const all = Array.from(customItemsRegistry.values());
+      localStorage.setItem('glory_custom_items', JSON.stringify(all));
+    } catch(err) {}
+
+    const existing = items.find(i => i.id === item.id);
+    if (existing) {
+      existing.q += 1;
+    } else {
+      items.push({ id: item.id, q: 1 });
+    }
+    playChime(540);
+    renderSlip();
+    openSlip();
+    toast(`🍲 ${item.n} added to your order slip!`);
+  });
+
+  window.addEventListener('glory_apply_coupon_code', (e) => {
+    const code = e.detail?.code;
+    if (code) {
+      openSlip();
+      applyCouponCode(code);
+    }
+  });
+
+  // Scoville Heat HUD buttons
+  $$('.heat-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const heatLvl = parseInt(chip.dataset.heat || '2', 10);
+      setScovilleHeat(heatLvl);
+      playFlameWhoosh(heatLvl * 0.7);
+    });
+  });
+
+  // ASMR Audio Toggle Button
+  const btnAsmr = document.getElementById('btn-asmr-toggle');
+  if (btnAsmr) {
+    btnAsmr.addEventListener('click', () => {
+      const active = toggleAudio();
+      toast(active ? '🔊 Street ASMR audio online' : '🔇 ASMR audio muted');
+    });
   }
 
   function toast(msg){
@@ -1184,3 +1256,9 @@ const PHONE = '919851585245';
   setInterval(paintStatus, 60000);
   onScroll();
   jholScan();
+
+  // Initialize Next-Gen Interactive Systems
+  initAudio();
+  initCanvasReactor();
+  initAlchemyLab();
+  initMomoRoulette();
